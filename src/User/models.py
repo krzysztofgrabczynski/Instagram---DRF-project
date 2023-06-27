@@ -19,12 +19,6 @@ class UserProfileModel(models.Model):
         choices=gender_choices.choices, default=gender_choices.MALE
     )
     description = models.TextField(default="", blank=True)
-    profile_img = models.ImageField(
-        default="profile_imgs/default_male.jpg",
-        upload_to="profile_imgs",
-        blank=True,
-        null=True,
-    )
     posts_amount = models.IntegerField(default=0)
     followers_amount = models.IntegerField(default=0)
     following_amount = models.IntegerField(default=0)
