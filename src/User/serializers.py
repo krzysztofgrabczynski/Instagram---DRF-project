@@ -4,19 +4,21 @@ from django.contrib.auth.models import User
 
 from typing import Dict
 
+from src.user.models import UserProfileModel
+
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     """
     Serializer for registration new user.
     All fields are required. Username and email must be unique. Password and password2 must be the same.
-    This serializer craetes authentication token for user.
+    This serializer craetes authentication token for user and user profile.
     """
 
     password2 = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "password2"]
+        fields = ["username", "email", "password", "password2", "gender", "description"]
         extra_kwargs = {
             "password": {"write_only": True},
             "password2": {"write_only": True},
@@ -41,6 +43,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         return token
 
+    def _create_user_profile(self, user: User, validated_data: Dict) -> None:
+        UserProfileModel.objects.craete(
+            user=user,
+            gender=validated_data["gender"],
+            description=validated_data["description"],
+        )
+
     def craete(self, validated_data: Dict) -> User:
         user = User.objects.create_user(
             username=validated_data["username"],
@@ -49,5 +58,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         )
 
         self._create_user_auth_token(user)
+        self._create_user_profile(user, validated_data)
 
         return user
