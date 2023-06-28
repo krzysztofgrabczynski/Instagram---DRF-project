@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-import pytest
 
 from src.user.models import UserProfileModel
 
