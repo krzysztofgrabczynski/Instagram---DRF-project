@@ -1,32 +1,35 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-
+from django.contrib.auth.password_validation import validate_password
 from typing import Dict
 
 from src.user.models import UserProfileModel
 
 
-class UserRegisterSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """
-    Serializer for registration new user.
-    All fields are required. Username and email must be unique. Password and password2 must be the same.
-    This serializer craetes authentication token for user and user profile.
+    Serializer for User model.
+    All fields are required.
+    Serializer check if the password and password2 are the same and if the username and email are unique.
     """
 
-    password2 = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    password2 = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = User
-        fields = ["username", "email", "password", "password2", "gender", "description"]
+        fields = ["username", "email", "password", "password2"]
         extra_kwargs = {
-            "password": {"write_only": True},
-            "password2": {"write_only": True},
-            "email": {"required": True},
+            "password": {
+                "write_only": True,
+                "required": True,
+                "validators": [validate_password],
+            },
         }
 
     def validate(self, attrs: Dict) -> Dict:
-        if attrs["password"] is not attrs["password2"]:
+        if not attrs["password"] == attrs["password2"]:
             exc_data = {"password": "Password fields must be the same"}
             raise serializers.ValidationError(exc_data)
 
@@ -38,26 +41,53 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         return email
 
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for UserProfileModel model.
+    """
+
+    class Meta:
+        model = UserProfileModel
+        fields = ["gender", "description"]
+
+
+class UserRegisterSerializer(serializers.Serializer):
+    """
+    Serializer for registration new user.
+    Serializer craetes new user with authentication token and user profile.
+    """
+
+    user = UserSerializer(many=False)
+    user_profile = UserProfileSerializer(many=False)
+
     def _create_user_auth_token(self, user: User) -> Token:
         token = Token.objects.create(user=user)
 
         return token
 
-    def _create_user_profile(self, user: User, validated_data: Dict) -> None:
-        UserProfileModel.objects.craete(
+    def _create_user_profile(
+        self, user: User, validated_data: Dict
+    ) -> UserProfileModel:
+        user_profile = UserProfileModel.objects.create(
             user=user,
             gender=validated_data["gender"],
             description=validated_data["description"],
         )
 
-    def craete(self, validated_data: Dict) -> User:
+        return user_profile
+
+    def create(self, validated_data: Dict) -> User:
+        validated_user_data = validated_data["user"]
+        validated_user_profile_data = validated_data["user_profile"]
+
         user = User.objects.create_user(
-            username=validated_data["username"],
-            email=validated_data["email"],
-            password=validated_data["password"],
+            username=validated_user_data["username"],
+            email=validated_user_data["email"],
+            password=validated_user_data["password"],
         )
 
         self._create_user_auth_token(user)
-        self._create_user_profile(user, validated_data)
+        self._create_user_profile(user, validated_user_profile_data)
 
-        return user
+        return validated_data
