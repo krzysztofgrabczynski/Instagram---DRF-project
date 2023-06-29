@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from src.user.models import UserProfileModel
+
+
+admin.site.register(UserProfileModel)
