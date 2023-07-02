@@ -13,7 +13,20 @@ class UserCreateView(generics.CreateAPIView):
 
 
 class UserEditAccountView(generics.UpdateAPIView):
-    pass
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        username = request.data.get("username", instance.username)
+        email = request.data.get("email", instance.email)
+        
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
 
 
 class UserEditProfileView(generics.UpdateAPIView):
