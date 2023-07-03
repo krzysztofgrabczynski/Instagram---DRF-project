@@ -1,9 +1,13 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics, viewsets, mixins
+from rest_framework import generics
 from rest_framework.response import Response
 
-from src.user.serializers import UserRegisterSerializer, UserSerializer, UserProfileSerializer
+from src.user.serializers import (
+    UserRegisterSerializer,
+    UserAccountUpdateSerializer,
+    UserPasswordUpdateSerializer,
+    UserProfileSerializer,
+)
 from src.user.models import UserProfileModel
 
 
@@ -12,17 +16,23 @@ class UserCreateView(generics.CreateAPIView):
     serializer_class = UserRegisterSerializer
 
 
-class UserEditAccountView(generics.UpdateAPIView):
+class UserEditAccountView(generics.UpdateAPIView, generics.RetrieveAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserAccountUpdateSerializer
+
+
+class UserEditPasswordView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserPasswordUpdateSerializer
 
     def update(self, request, *args, **kwargs):
+        """
+        Edit of the update method -> added "pk" into serializer instance to use the logged user object.
+        """
         instance = self.get_object()
-
-        username = request.data.get("username", instance.username)
-        email = request.data.get("email", instance.email)
-        
-        serializer = self.get_serializer(instance, data=request.data)
+        serializer = self.get_serializer(
+            instance, data=request.data, user_pk=kwargs["pk"]
+        )
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
@@ -32,5 +42,3 @@ class UserEditAccountView(generics.UpdateAPIView):
 class UserEditProfileView(generics.UpdateAPIView):
     queryset = UserProfileModel.objects.all()
     serializer_class = UserProfileSerializer
-
-
