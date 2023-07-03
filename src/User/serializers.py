@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from typing import Dict
 
+from rest_framework.fields import empty
+
 from src.user.models import UserProfileModel
 
 
@@ -91,3 +93,59 @@ class UserRegisterSerializer(serializers.Serializer):
         self._create_user_profile(user, validated_user_profile_data)
 
         return validated_data
+
+
+class UserAccountUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for update account data for specific user. Could change username and email.
+    """
+
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ["username", "email"]
+
+    def validate_email(self, email: str) -> str:
+        if (
+            User.objects.filter(email=email).exists()
+            and not self.instance.email == email
+        ):
+            raise serializers.ValidationError("User with that email already exists")
+
+        return email
+
+
+class UserPasswordUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for change password of the specific user. Old password must be correct and new passwords have to be validated.
+    """
+
+    old_password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(
+        write_only=True, required=True, validators=[validate_password]
+    )
+    password2 = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ["old_password", "password", "password2"]
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        user_pk = kwargs.pop("user_pk", None)
+        self.user = User.objects.filter(pk=user_pk).first()
+        super().__init__(instance, data, **kwargs)
+
+    def validate(self, attrs: Dict) -> Dict:
+        if not attrs["password"] == attrs["password2"]:
+            exc_data = {"password": "Password fields must be the same"}
+            raise serializers.ValidationError(exc_data)
+
+        return super().validate(attrs)
+
+    def validate_old_password(self, old_password: str) -> str:
+        if old_password:
+            if not self.user.check_password(old_password):
+                raise serializers.ValidationError("Password incorrect")
+
+        return old_password
