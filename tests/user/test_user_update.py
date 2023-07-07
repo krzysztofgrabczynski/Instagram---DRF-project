@@ -7,6 +7,11 @@ from tests.user.test_user_registration import UserRegistrationsTestCase as func
 
 
 class TestUserUpdateGeneric(TestCase):
+    """
+    Generic class for user update tests with setUp and setUpTestData method.
+    Creates two users.
+    """
+
     @classmethod
     def setUpTestData(cls) -> None:
         user_data = {
@@ -31,6 +36,10 @@ class TestUserUpdateGeneric(TestCase):
 
 
 class TestUserAccountUpdate(TestUserUpdateGeneric):
+    """
+    A class for testing user account update functionality.
+    """
+
     def test_user_account_update_with_valid_data(self):
         response = self.client.put(
             f"/edit_account/{self.user.id}/",
