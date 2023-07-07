@@ -9,6 +9,7 @@ from src.user.serializers import (
     UserProfileSerializer,
 )
 from src.user.models import UserProfileModel
+from src.user.permissions import UserUpdatePermission
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -19,11 +20,12 @@ class UserCreateView(generics.CreateAPIView):
 class UserEditAccountView(generics.UpdateAPIView, generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserAccountUpdateSerializer
-
+    permission_classes = [UserUpdatePermission]
 
 class UserEditPasswordView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserPasswordUpdateSerializer
+    permission_classes = [UserUpdatePermission]
 
     def update(self, request, *args, **kwargs):
         """
@@ -42,3 +44,4 @@ class UserEditPasswordView(generics.UpdateAPIView):
 class UserEditProfileView(generics.UpdateAPIView):
     queryset = UserProfileModel.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [UserUpdatePermission]
