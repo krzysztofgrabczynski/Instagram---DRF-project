@@ -92,3 +92,19 @@ class TestUserAccountUpdate(TestUserUpdateGeneric):
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(content, excpected_msg)
+
+
+class TestUserPasswordUpdate(TestUserUpdateGeneric):
+    """
+    A class for testing user password update functionality.
+    """
+
+    def test_user_password_update_with_valid_data(self):
+        response = self.client.put(
+            f"/edit_password/{self.user.id}/",
+            {"old_password": "test_password", "password": "test_password_2", "password2": "test_password_2"},
+        )
+        update_user = User.objects.get(id=self.user.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(update_user.check_password("test_password_2"))
+        
