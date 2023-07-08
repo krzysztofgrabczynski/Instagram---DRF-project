@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from rest_framework import generics
-from rest_framework.response import Response
 
 from src.user.serializers import (
     UserRegisterSerializer,
@@ -22,23 +21,11 @@ class UserEditAccountView(generics.UpdateAPIView, generics.RetrieveAPIView):
     serializer_class = UserAccountUpdateSerializer
     permission_classes = [UserUpdatePermission]
 
+
 class UserEditPasswordView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserPasswordUpdateSerializer
-    permission_classes = [UserUpdatePermission]
-
-    def update(self, request, *args, **kwargs):
-        """
-        Edit of the update method -> added "pk" into serializer instance to use the logged user object.
-        """
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance, data=request.data, user_pk=kwargs["pk"]
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        return Response(serializer.data)
+    # permission_classes = [UserUpdatePermission]
 
 
 class UserEditProfileView(generics.UpdateAPIView):
