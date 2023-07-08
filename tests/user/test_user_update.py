@@ -9,7 +9,7 @@ from src.user.models import UserProfileModel
 class TestUserUpdateGeneric(TestCase):
     """
     Generic class for user update tests with setUp and setUpTestData method.
-    Creates two users.
+    Creates two users and logged in one of them for testing.
     """
 
     @classmethod
@@ -78,4 +78,17 @@ class TestUserAccountUpdate(TestUserUpdateGeneric):
         excpected_msg = """{"email":["User with that email already exists"]}"""
 
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(content, excpected_msg)
+
+    def test_logged_out_user(self):
+        self.client.logout()
+        response = self.client.put(
+            f"/edit_account/{self.user.id}/",
+            {"username": "test_user_update", "email": "test_update@email.com"},
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = """{"detail":"Authentication credentials were not provided."}"""
+
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(content, excpected_msg)
