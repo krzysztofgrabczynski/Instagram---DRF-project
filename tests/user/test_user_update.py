@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
+from rest_framework.authtoken.models import Token
 
 from src.user.models import UserProfileModel
-from tests.user.test_user_registration import UserRegistrationsTestCase as func
 
 
 class TestUserUpdateGeneric(TestCase):
@@ -21,6 +21,7 @@ class TestUserUpdateGeneric(TestCase):
         }
         user = User.objects.create_user(**user_data)
         UserProfileModel.objects.create(user=user, description="test_description")
+        Token.objects.create(user=user)
 
         user_data_2 = {
             "username": "test_user_2",
@@ -33,6 +34,10 @@ class TestUserUpdateGeneric(TestCase):
         self.client = APIClient()
         self.user = User.objects.get(username="test_user")
         self.user_profile = UserProfileModel.objects.get(user=self.user)
+
+        token = "Token " + str(self.user.auth_token)
+        self.client.login(username="test_user", password="test_password")
+        self.client.credentials(HTTP_AUTHORIZATION=token)
 
 
 class TestUserAccountUpdate(TestUserUpdateGeneric):
