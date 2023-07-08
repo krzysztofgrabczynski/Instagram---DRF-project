@@ -4,8 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from typing import Dict
 
-from rest_framework.fields import empty
-
 from src.user.models import UserProfileModel
 
 
@@ -131,11 +129,6 @@ class UserPasswordUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ["old_password", "password", "password2"]
 
-    def __init__(self, instance=None, data=empty, **kwargs):
-        user_pk = kwargs.pop("user_pk", None)
-        self.user = User.objects.filter(pk=user_pk).first()
-        super().__init__(instance, data, **kwargs)
-
     def validate(self, attrs: Dict) -> Dict:
         if not attrs["password"] == attrs["password2"]:
             exc_data = {"password": "Password fields must be the same"}
@@ -145,7 +138,13 @@ class UserPasswordUpdateSerializer(serializers.ModelSerializer):
 
     def validate_old_password(self, old_password: str) -> str:
         if old_password:
-            if not self.user.check_password(old_password):
+            if not self.instance.check_password(old_password):
                 raise serializers.ValidationError("Password incorrect")
 
         return old_password
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data["password"])
+        instance.save()
+
+        return instance
