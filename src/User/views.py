@@ -25,7 +25,7 @@ class UserEditAccountView(generics.UpdateAPIView, generics.RetrieveAPIView):
 class UserEditPasswordView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserPasswordUpdateSerializer
-    # permission_classes = [UserUpdatePermission]
+    permission_classes = [UserUpdatePermission]
 
 
 class UserEditProfileView(generics.UpdateAPIView):
