@@ -149,3 +149,24 @@ class TestUserPasswordUpdate(TestUserUpdateGeneric):
         self.assertEqual(response.status_code, 400)
         self.assertTrue(update_user.check_password("test_password"))
         self.assertEqual(content, excpected_msg)
+
+
+class TestUserProfileUpdate(TestUserUpdateGeneric):
+    """
+    A class for testing user profile update functionality.
+    """
+
+    def test_user_profile_update_with_valid_data(self):
+        response = self.client.put(
+            f"/edit_profile/{self.user_profile.id}/",
+            {
+                "gender": 1,
+                "description": "update_description",
+            },
+        )
+
+        update_user_profile = UserProfileModel.objects.get(id=self.user.id)
+        print(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(update_user_profile.gender, 1)
+        self.assertEqual(update_user_profile.description, "update_description")
