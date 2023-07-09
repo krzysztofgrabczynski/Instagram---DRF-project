@@ -102,9 +102,50 @@ class TestUserPasswordUpdate(TestUserUpdateGeneric):
     def test_user_password_update_with_valid_data(self):
         response = self.client.put(
             f"/edit_password/{self.user.id}/",
-            {"old_password": "test_password", "password": "test_password_2", "password2": "test_password_2"},
+            {
+                "old_password": "test_password",
+                "password": "test_password_2",
+                "password2": "test_password_2",
+            },
         )
+
         update_user = User.objects.get(id=self.user.id)
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue(update_user.check_password("test_password_2"))
-        
+
+    def test_user_password_update_with_invalid_old_password(self):
+        response = self.client.put(
+            f"/edit_password/{self.user.id}/",
+            {
+                "old_password": "incorrect",
+                "password": "test_password_2",
+                "password2": "test_password_2",
+            },
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = """{"old_password":["Password incorrect"]}"""
+        update_user = User.objects.get(id=self.user.id)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(update_user.check_password("test_password"))
+        self.assertEqual(content, excpected_msg)
+
+    def test_user_password_update_with_not_same_password_and_password2(self):
+        response = self.client.put(
+            f"/edit_password/{self.user.id}/",
+            {
+                "old_password": "test_password",
+                "password": "test_password_2",
+                "password2": "not_same_password",
+            },
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = """{"password":["Password fields must be the same"]}"""
+        update_user = User.objects.get(id=self.user.id)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(update_user.check_password("test_password"))
+        self.assertEqual(content, excpected_msg)
