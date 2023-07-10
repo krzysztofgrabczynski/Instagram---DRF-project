@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
+import pytest
 
 from src.user.models import UserProfileModel
 
@@ -28,16 +29,21 @@ class TestUserUpdateGeneric(TestCase):
             "email": "test_2@email.com",
             "password": "test_password",
         }
-        user = User.objects.create_user(**user_data_2)
+        user2 = User.objects.create_user(**user_data_2)
+        UserProfileModel.objects.create(user=user2, description="test_description")
+        Token.objects.create(user=user2)
 
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = User.objects.get(username="test_user")
         self.user_profile = UserProfileModel.objects.get(user=self.user)
-
-        token = "Token " + str(self.user.auth_token)
+        self.token = "Token " + str(self.user.auth_token)
         self.client.login(username="test_user", password="test_password")
-        self.client.credentials(HTTP_AUTHORIZATION=token)
+        self.client.credentials(HTTP_AUTHORIZATION=self.token)
+
+        self.user2 = User.objects.get(username="test_user_2")
+        self.user_profile2 = UserProfileModel.objects.get(user=self.user2)
+        self.token2 = "Token " + str(self.user2.auth_token)
 
 
 class TestUserAccountUpdate(TestUserUpdateGeneric):
@@ -91,6 +97,20 @@ class TestUserAccountUpdate(TestUserUpdateGeneric):
         excpected_msg = """{"detail":"Authentication credentials were not provided."}"""
 
         self.assertEqual(response.status_code, 401)
+        self.assertEqual(content, excpected_msg)
+
+    def test_user_account_update_with_wrong_user(self):
+        response = self.client.put(
+            f"/edit_account/{self.user2.id}/",
+            {"username": "test_user_update", "email": "test_update@email.com"},
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = (
+            """{"detail":"You do not have permission to perform this action."}"""
+        )
+
+        self.assertEqual(response.status_code, 403)
         self.assertEqual(content, excpected_msg)
 
 
@@ -150,6 +170,41 @@ class TestUserPasswordUpdate(TestUserUpdateGeneric):
         self.assertTrue(update_user.check_password("test_password"))
         self.assertEqual(content, excpected_msg)
 
+    def test_logged_out_user(self):
+        self.client.logout()
+        response = self.client.put(
+            f"/edit_password/{self.user.id}/",
+            {
+                "old_password": "test_password",
+                "password": "test_password_2",
+                "password2": "not_same_password",
+            },
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = """{"detail":"Authentication credentials were not provided."}"""
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(content, excpected_msg)
+
+    def test_user_account_update_with_wrong_user(self):
+        response = self.client.put(
+            f"/edit_password/{self.user2.id}/",
+            {
+                "old_password": "test_password",
+                "password": "test_password_2",
+                "password2": "not_same_password",
+            },
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = (
+            """{"detail":"You do not have permission to perform this action."}"""
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(content, excpected_msg)
+
 
 class TestUserProfileUpdate(TestUserUpdateGeneric):
     """
@@ -165,8 +220,41 @@ class TestUserProfileUpdate(TestUserUpdateGeneric):
             },
         )
 
-        update_user_profile = UserProfileModel.objects.get(id=self.user.id)
-        print(response.content)
+        update_user_profile = UserProfileModel.objects.get(id=self.user_profile.id)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(update_user_profile.gender, 1)
         self.assertEqual(update_user_profile.description, "update_description")
+
+    def test_logged_out_user(self):
+        self.client.logout()
+        response = self.client.put(
+            f"/edit_profile/{self.user_profile.id}/",
+            {
+                "gender": 1,
+                "description": "update_description",
+            },
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = """{"detail":"Authentication credentials were not provided."}"""
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(content, excpected_msg)
+
+    def test_user_account_update_with_wrong_user(self):
+        response = self.client.put(
+            f"/edit_profile/{self.user_profile2.id}/",
+            {
+                "gender": 1,
+                "description": "update_description",
+            },
+        )
+
+        content = str(response.content.decode())
+        excpected_msg = (
+            """{"detail":"You do not have permission to perform this action."}"""
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(content, excpected_msg)
