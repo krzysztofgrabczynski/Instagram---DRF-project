@@ -10,7 +10,8 @@ class UserUpdatePermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user == view.get_object():
             return True
-        if request.user == view.get_object().user:
-            return True
+        if hasattr(view.get_object(), "user"):
+            if request.user == view.get_object().user:
+                return True
 
         return False
