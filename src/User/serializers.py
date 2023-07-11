@@ -148,3 +148,6 @@ class UserPasswordUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+class ResetPasswordEmailSerializer(serializers.ModelSerializer):
+    pass
