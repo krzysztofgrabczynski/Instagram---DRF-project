@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.mail import send_mail
-from rest_framework import generics, views, decorators, viewsets
+from rest_framework import generics, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from src.user.serializers import (
@@ -47,7 +48,7 @@ class ResetPassowrdView(viewsets.GenericViewSet):
         print(f"Send email to {recipient_list}")
         # send_mail(subject, message, from_email, recipient_list)
 
-    @decorators.action(detail=True, methods=["POST"])
+    @action(detail=True, methods=["POST"])
     def send_email(self, request, *args, **kwargs):
         email = kwargs["email"]
         self.token = "example_token"
@@ -59,7 +60,7 @@ class ResetPassowrdView(viewsets.GenericViewSet):
 
         return Response(reset_password_url)
 
-    @decorators.action(detail=True, methods=["POST"])
+    @action(detail=True, methods=["POST"])
     def reset_password(self, request, *args, **kwargs):
         post_token = kwargs.pop("token", None)
         if not post_token == self.token:
