@@ -20,5 +20,12 @@ urlpatterns = [
         views.UserEditProfileView.as_view(),
         name="edit_profile",
     ),
-    
+    path(
+        "send_reset_password_email/<str:email>/",
+        views.send_reset_passoword_email_view,
+        name="reset_password_email",
+    ),
+    path(
+        "reset_password/<str:token>/", views.reset_passoword_view, name="reset_password"
+    ),
 ]
