@@ -21,11 +21,13 @@ urlpatterns = [
         name="edit_profile",
     ),
     path(
-        "send_reset_password_email/<str:email>/",
+        "send_reset_password_email/",
         views.send_reset_passoword_email_view,
         name="reset_password_email",
     ),
     path(
-        "reset_password/<str:token>/", views.reset_passoword_view, name="reset_password"
+        "reset_password/<str:token>/<str:user>/",
+        views.reset_passoword_view,
+        name="reset_password",
     ),
 ]
