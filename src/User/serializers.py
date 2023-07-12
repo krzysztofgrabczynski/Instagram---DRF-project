@@ -151,10 +151,30 @@ class UserPasswordUpdateSerializer(serializers.ModelSerializer):
 
 
 class ResetPasswordEmailSerializer(serializers.Serializer):
+    """
+    Serializer for provide email for send message with reset password url.
+    """
+
     email = serializers.EmailField(required=True)
 
-    # def validate_email(self, email: str) -> str:
-    #     if User.objects.filter(email=email).exists():
-    #         raise serializers.ValidationError("User with that email already exists")
+    def validate_email(self, email: str) -> str:
+        if not User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("User with that email does not exists")
 
-    #     return email
+        return email
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    """
+    Serializer for insert a new password using reset password url.
+    """
+
+    password = serializers.CharField(required=True, validators=[validate_password])
+    password2 = serializers.CharField(required=True)
+
+    def validate(self, attrs: Dict) -> Dict:
+        if not attrs["password"] == attrs["password2"]:
+            exc_data = {"password": "Password fields must be the same"}
+            raise serializers.ValidationError(exc_data)
+
+        return super().validate(attrs)
