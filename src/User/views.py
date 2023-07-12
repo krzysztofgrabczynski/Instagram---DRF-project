@@ -1,9 +1,10 @@
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.mail import send_mail
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.contrib.auth.tokens import default_token_generator
 
 from src.user.serializers import (
     UserRegisterSerializer,
@@ -11,6 +12,7 @@ from src.user.serializers import (
     UserPasswordUpdateSerializer,
     UserProfileSerializer,
     ResetPasswordEmailSerializer,
+    ResetPasswordSerializer,
 )
 from src.user.models import UserProfileModel
 from src.user.permissions import UserUpdatePermission
@@ -40,33 +42,63 @@ class UserEditProfileView(generics.UpdateAPIView):
 
 
 class ResetPassowrdView(viewsets.GenericViewSet):
-    def _custom_send_email(self, reset_password_url, email):
-        subject = "Reset password"
-        message = f"Click here to reset your password: {reset_password_url}"
-        from_email = ...
-        recipient_list = [email]
-        print(f"Send email to {recipient_list}")
-        # send_mail(subject, message, from_email, recipient_list)
+    """
+    View class for reset password functionality.
+    It sends an email for provided email address (if user exists in database with that email). Url is created with reset password token and username.
+    The token will be deactivated after a successful password reset.
+    """
 
     @action(detail=True, methods=["POST"])
     def send_email(self, request, *args, **kwargs):
-        email = kwargs["email"]
-        self.token = "example_token"
-        reset_password_url = request.build_absolute_uri(
-            reverse("reset_password", kwargs={"token": self.token})
-        )
+        serializer = ResetPasswordEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.data["email"]
 
-        self._custom_send_email(reset_password_url, email)
+        reset_password_url = self._create_reset_url(request, email)
+        self._send_email(reset_password_url, email)
 
         return Response(reset_password_url)
 
     @action(detail=True, methods=["POST"])
     def reset_password(self, request, *args, **kwargs):
-        post_token = kwargs.pop("token", None)
-        if not post_token == self.token:
+        username = kwargs["user"]
+        user = User.objects.get(username=username)
+        token = kwargs["token"]
+
+        if not default_token_generator.check_token(user, token):
             return Response("Wrong reset password token")
 
-        return Response("not implemented")
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self._perform_set_password(user, serializer)
+
+        return Response("Password reset successfully")
+
+    def _create_reset_url(self, request, email: str) -> str:
+        """
+        Create reset password url which contains username and token.
+        """
+        user = User.objects.get(email=email)
+        token = default_token_generator.make_token(user)
+
+        reset_password_url = request.build_absolute_uri(
+            reverse("reset_password", kwargs={"user": user, "token": token})
+        )
+
+        return reset_password_url
+
+    def _send_email(self, reset_password_url: str, email: str) -> None:
+        subject = "Reset password"
+        message = f"Click here to reset your password: {reset_password_url}"
+        from_email = ...
+        recipient_list = [email]
+        # send_mail(subject, message, from_email, recipient_list)
+
+    def _perform_set_password(
+        self, user: User, serializer: ResetPasswordSerializer
+    ) -> None:
+        user.set_password(serializer.data["password"])
+        user.save()
 
 
 send_reset_passoword_email_view = ResetPassowrdView.as_view({"post": "send_email"})
