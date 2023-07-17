@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from rest_framework import viewsets, mixins
 
-# Create your views here.
+from src.post.serializers import PostSerializer
+from src.post.models import PostModel
+
+
+class PostCreateUpdateView(mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    """
+    View for create, update and delete specific post.
+    It uses the GenericViewSet for router functionality.
+    """
+    queryset = PostModel.objects.all()
+    serializer_class = PostSerializer
+    
