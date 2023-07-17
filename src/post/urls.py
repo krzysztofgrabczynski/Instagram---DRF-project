@@ -5,7 +5,7 @@ from src.post import views
 
 
 router = DefaultRouter()
-router.register(r"post", views.PostCreateUpdateView, basename="post")
+router.register(r"post", views.PostCreateUpdateDeleteView, basename="post")
 
 urlpatterns = [
     path("", include(router.urls)),
