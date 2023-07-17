@@ -16,6 +16,7 @@ from src.user.serializers import (
 )
 from src.user.models import UserProfileModel
 from src.user.permissions import UserUpdatePermission
+from core.settings import EMAIL_HOST_USER
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -57,7 +58,7 @@ class ResetPassowrdView(viewsets.GenericViewSet):
         reset_password_url = self._create_reset_url(request, email)
         self._send_email(reset_password_url, email)
 
-        return Response(reset_password_url)
+        return Response("Email was sent successfully")
 
     @action(detail=True, methods=["POST"])
     def reset_password(self, request, *args, **kwargs):
@@ -90,9 +91,9 @@ class ResetPassowrdView(viewsets.GenericViewSet):
     def _send_email(self, reset_password_url: str, email: str) -> None:
         subject = "Reset password"
         message = f"Click here to reset your password: {reset_password_url}"
-        from_email = ...
+        from_email = EMAIL_HOST_USER
         recipient_list = [email]
-        # send_mail(subject, message, from_email, recipient_list)
+        send_mail(subject, message, from_email, recipient_list)
 
     def _perform_set_password(
         self, user: User, serializer: ResetPasswordSerializer
