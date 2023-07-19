@@ -7,10 +7,17 @@ from src.user.models import UserProfileModel
 
 
 class UserProfileView(generics.RetrieveAPIView):
+    """
+    APIView for user profile.
+    """
+
     queryset = UserProfileModel.objects.all()
     serializer_class = UserProfileSerializer
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Updating retrieve method by creating 'neasted_instance' for nested serializer UserProfileSerializer.
+        """
         instance = self.get_object()
         user = instance.user
         nested_instance = {
