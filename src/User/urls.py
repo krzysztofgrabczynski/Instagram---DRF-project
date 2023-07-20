@@ -1,6 +1,7 @@
 from django.urls import path
 
 from src.user import views
+from src.user.user_profile_views import UserProfileView
 
 
 urlpatterns = [
@@ -30,4 +31,5 @@ urlpatterns = [
         views.reset_passoword_view,
         name="reset_password",
     ),
+    path("user_profile/<int:pk>/", UserProfileView.as_view(), name="user_profile"),
 ]

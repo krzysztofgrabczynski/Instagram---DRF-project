@@ -24,7 +24,8 @@ class UserRegistrationsTestCase(TestCase):
         user_pofile_data = {"gender": 1, "description": "test_description"}
         self.data = json.dumps(dict(user=user_data, user_profile=user_pofile_data))
 
-    def byte_content_to_dict(self, byte_content: bytes) -> dict:
+    @staticmethod
+    def byte_content_to_dict(byte_content: bytes) -> dict:
         decode_content = byte_content.decode()
         dict_content = json.loads(decode_content)
         return dict_content
