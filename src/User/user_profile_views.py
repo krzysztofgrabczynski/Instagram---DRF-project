@@ -18,6 +18,11 @@ class UserProfileView(generics.RetrieveAPIView):
         Updating retrieve method by creating 'neasted_instance' for nested serializer UserProfileSerializer.
         """
         instance = self.get_object()
+        nested_instance = self._create_nested_instance(instance)
+        serializer = self.get_serializer(nested_instance)
+        return Response(serializer.data)
+
+    def _create_nested_instance(self, instance: UserProfileModel) -> dict:
         user = instance.user
         posts = instance.user.posts.all().order_by("-date")
         nested_instance = {
@@ -25,5 +30,5 @@ class UserProfileView(generics.RetrieveAPIView):
             "user_profile_data": instance,
             "user_posts": posts,
         }
-        serializer = self.get_serializer(nested_instance)
-        return Response(serializer.data)
+
+        return nested_instance
