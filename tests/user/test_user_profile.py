@@ -36,9 +36,7 @@ class TestUserProfile(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION=self.token)
 
     def test_user_profile_check_data(self):
-        response = self.client.get(
-            f"/user_profile/{self.user.id}/"
-        )
+        response = self.client.get(f"/user_profile/{self.user.id}/")
 
         content = func.byte_content_to_dict(response.content)
         user_content = content["user_data"]
