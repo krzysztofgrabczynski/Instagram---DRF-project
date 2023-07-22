@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "src.user",
     "src.post",
+    "src.social_actions",
 ]
 
 MIDDLEWARE = [
