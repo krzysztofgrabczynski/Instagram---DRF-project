@@ -7,7 +7,7 @@ from src.post.models import PostModel
 User = get_user_model()
 
 
-class Follow(models.Model):
+class FollowModel(models.Model):
     """
     Django model for following action.
     """
@@ -25,7 +25,7 @@ class Follow(models.Model):
         return self.__str__()
 
 
-class Like(models.Model):
+class LikeModel(models.Model):
     """
     Django model for thumb up (like) action.
     """
