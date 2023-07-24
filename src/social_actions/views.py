@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from typing import Any
 
 from src.social_actions.models import LikeModel
+from src.social_actions.models import FollowModel
+from src.user.models import UserProfileModel
 
 
 class LikeActionMixin:
@@ -13,7 +15,7 @@ class LikeActionMixin:
     Mixin for creating new LikeModel object or delete existing.
     Working with viewsets.
     It is used with models that have 'likes' attribute.
-    You need to set 'like_action_queryset' as queryset of the model that will user like action.
+    You need to set 'like_action_queryset' as queryset of the model that will use like action.
     In addition you need to set 'new_like_obj_lookup_field' which will be used to create new like object (it is for relationship fields in models).
     """
 
@@ -84,3 +86,67 @@ class LikeActionMixin:
         new_like.save()
         obj.likes += 1
         obj.save()
+
+
+class FollowActionMixin:
+    """
+    Mixin for creating new FollowModel object or delete existing.
+    Follow action will delete existing FollowModel object if exists or create new FollowModel object or none of these if logged user is owner of the user profile.
+    Working with viewsets.
+    You need to set 'user_profile_queryset' as queryset of the model that will use follow action.
+    It increases follow amounts on users profiles or decreases (depends if the follow or unfollow action)
+    """
+
+    user_profile_queryset = None
+    user_profile_lookup_field = "pk"
+
+    def get_user_profile_object(self):
+        queryset = self.user_profile_queryset
+
+        assert self.user_profile_lookup_field in self.kwargs, (
+            f"Expected view {self.__class__.__name__} to be called with a URL keyword argument"
+            f"named '{self.user_profile_lookup_field}'. Fix your URL conf, or set the `.user_profile_lookup_field` "
+            "attribute on the view correctly."
+        )
+
+        pk = self.kwargs[self.user_profile_lookup_field]
+        obj = get_object_or_404(queryset, pk=pk)
+
+        return obj
+
+    @action(detail=True, methods=["GET"])
+    def follow_action(self, request, *args, **kwargs):
+        profile = self.get_user_profile_object()
+        if request.user == profile.user:
+            return Response("Logged user profile")
+
+        follow_obj = self._check_if_following(request.user, profile)
+        if follow_obj:
+            self._unfollow(request.user, profile, follow_obj)
+            return Response("Unfollow")
+
+        self._create_follow(request.user, profile)
+        return Response("Follow")
+
+    def _check_if_following(self, user: User, profile: UserProfileModel) -> bool:
+        follow_obj = user.follower.filter(user_followed=profile.user)
+        return follow_obj if follow_obj else None
+
+    def _create_follow(self, user: User, profile: UserProfileModel) -> None:
+        new_follow = FollowModel.objects.create(user=user, user_followed=profile.user)
+        new_follow.save()
+
+        user.userprofilemodel.following_amount += 1
+        user.userprofilemodel.save()
+        profile.followers_amount += 1
+        profile.save()
+
+    def _unfollow(
+        self, user: User, profile: UserProfileModel, follow: FollowModel
+    ) -> None:
+        follow.delete()
+
+        user.userprofilemodel.following_amount -= 1
+        user.userprofilemodel.save()
+        profile.followers_amount -= 1
+        profile.save()
