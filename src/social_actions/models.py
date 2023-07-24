@@ -16,7 +16,6 @@ class FollowModel(models.Model):
     user_followed = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="followed"
     )
-    followed_user_id = models.PositiveIntegerField(blank=False)
 
     def __str__(self) -> str:
         return f"Follow(id:{self.id}): {self.user.username}(id:{self.user.id}) -----> {self.user_followed.username}(id:{self.user_followed.id})"
@@ -27,7 +26,7 @@ class FollowModel(models.Model):
 
 class LikeModel(models.Model):
     """
-    Django model for thumb up (like) action.
+    Django model for like (thumb up) action.
     """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
