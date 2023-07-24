@@ -3,7 +3,7 @@ from rest_framework.response import Response
 
 from src.user.user_profile_serializers import UserProfileSerializer
 from src.user.models import UserProfileModel
-from src.social_actions.views import FollowActionMixin
+from src.social_actions.mixins import FollowActionMixin
 
 
 class UserProfileView(
