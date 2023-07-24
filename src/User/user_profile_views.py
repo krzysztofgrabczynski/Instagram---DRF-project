@@ -1,17 +1,21 @@
-from rest_framework import generics
+from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 
 from src.user.user_profile_serializers import UserProfileSerializer
 from src.user.models import UserProfileModel
+from src.social_actions.views import FollowActionMixin
 
 
-class UserProfileView(generics.RetrieveAPIView):
+class UserProfileView(
+    FollowActionMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     APIView for user profile.
     """
 
     queryset = UserProfileModel.objects.all()
     serializer_class = UserProfileSerializer
+    user_profile_queryset = UserProfileModel.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
         """
