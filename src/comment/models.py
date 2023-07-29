@@ -8,6 +8,10 @@ User = get_user_model()
 
 
 class CommentModel(models.Model):
+    """
+    Django model for comments (using under the posts).
+    """
+        
     post = models.ForeignKey(PostModel, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField(default='')
