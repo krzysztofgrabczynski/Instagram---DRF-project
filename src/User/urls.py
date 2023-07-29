@@ -1,10 +1,15 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from src.user import views
 from src.user.user_profile_views import UserProfileView
 
 
+router = DefaultRouter()
+router.register(r"user_profile", UserProfileView, basename="user_profile")
+
 urlpatterns = [
+    path("", include(router.urls)),
     path("sign_up/", views.UserCreateView.as_view(), name="sign_up"),
     path(
         "edit_account/<int:pk>/",
@@ -31,5 +36,4 @@ urlpatterns = [
         views.reset_passoword_view,
         name="reset_password",
     ),
-    path("user_profile/<int:pk>/", UserProfileView.as_view(), name="user_profile"),
 ]
