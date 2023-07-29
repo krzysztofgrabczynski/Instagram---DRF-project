@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "src.user",
     "src.post",
     "src.social_actions",
+    "src.comment",
 ]
 
 MIDDLEWARE = [
