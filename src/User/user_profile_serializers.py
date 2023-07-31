@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 from src.user.models import UserProfileModel
 from src.post.models import PostModel
+from src.comment.models import CommentModel
 
 
 class UserDataSerializer(serializers.ModelSerializer):
@@ -31,14 +32,26 @@ class UserProfileDataSerializer(serializers.ModelSerializer):
         ]
 
 
+class PostCommentDataSerializer(serializers.ModelSerializer):
+    """
+    Serializer with all comments udner the specific post (for user UserProfileView).
+    """
+
+    class Meta:
+        model = CommentModel
+        fields = ["user", "text", "date", "likes"]
+
+
 class UserPostDataSerializer(serializers.ModelSerializer):
     """
     Serializer with all posts of the specific user (for user UserProfileView).
     """
 
+    comments = PostCommentDataSerializer(many=True)
+
     class Meta:
         model = PostModel
-        fields = ["description", "date", "likes"]
+        fields = ["description", "date", "likes", "comments"]
 
 
 class UserProfileSerializer(serializers.Serializer):
