@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets, generics
+from rest_framework import mixins, generics, viewsets
 from rest_framework.response import Response
 from django.http import Http404
 
@@ -18,12 +18,14 @@ class CommentCreateView(generics.CreateAPIView):
         self.perform_create(serializer)
         print(args, kwargs)
         return Response(serializer.data)
-    
+
     def _check_post_pk(self, pk: int):
         if not PostModel.objects.filter(pk=pk).exists():
             raise Http404
 
-class CommentUpdateDeleteeView(mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+
+class CommentUpdateDeleteView(
+    mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet
+):
     queryset = CommentModel.objects.all()
     serializer_class = CommentSerializer
-
