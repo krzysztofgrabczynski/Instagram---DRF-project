@@ -5,6 +5,10 @@ from src.post.models import PostModel
 
 
 class CurrentPostDefault:
+    """
+    Function based on CurrentUserDefault for set HiddenField default as post which is in request.
+    """
+
     requires_context = True
 
     def __call__(self, serializer_field):
@@ -22,6 +26,7 @@ class CommentSerializer(serializers.ModelSerializer):
     Serializer for comment model.
     Creates a new comment by logged in user.
     User field is hidden and default set as logged in user.
+    Post field is hidden and default set as post in request using custom function CurrentPostDefault.
     """
 
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
