@@ -7,18 +7,29 @@ from src.post.models import PostModel
 class CurrentPostDefault:
     """
     Function based on CurrentUserDefault for set HiddenField default as post which is in request.
+    If request method is PUT or DELETE, funciton will get post pk from exsiting comment object.
     """
 
     requires_context = True
 
     def __call__(self, serializer_field):
-        kwargs = serializer_field.context["request"].parser_context["kwargs"]
-        pk = kwargs["pk"]
+        request = serializer_field.context["request"]
+        kwargs = request.parser_context["kwargs"]
+
+        if request.method == "PUT" or request.method == "DELETE":
+            pk = self._get_post_pk(kwargs)
+        else:
+            pk = kwargs["pk"]
+
         default = PostModel.objects.get(pk=pk)
         return default
 
     def __repr__(self):
         return "%s()" % self.__class__.__name__
+
+    def _get_post_pk(self, kwargs):
+        comment = CommentModel.objects.get(pk=kwargs["pk"])
+        return comment.post.id
 
 
 class CommentSerializer(serializers.ModelSerializer):
