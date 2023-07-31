@@ -1,5 +1,3 @@
-from django.contrib.auth.models import User
-
 from src.post.models import PostModel
 from src.comment.models import CommentModel
 from tests.user.test_user_update import TestUserUpdateGeneric as GenericTestCase
