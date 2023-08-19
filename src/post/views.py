@@ -21,7 +21,7 @@ class PostCreateUpdateDeleteView(
 
     queryset = PostModel.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [PostOwnerPermission]
+    permission_classes = [IsAuthenticated, PostOwnerPermission]
 
 
 class PostRetriveView(
