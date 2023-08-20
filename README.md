@@ -1,4 +1,5 @@
-# Instagram---DRF-project
+
+# <p align=center> <a name="top">Instagram---DRF-project </a></p>
 
 This is the second version of the Instagram project on my github. If you want to check the previous version [click here.](https://github.com/krzysztofgrabczynski/Instagram---Django-project)
 
@@ -27,3 +28,29 @@ The platform encourages engagement by enabling users to like posts. Furthermore,
 - Enter the ``` python manage.py migrate --run-syncdb ``` to update migrations
 - Now, you can run the application with this: ``` python manage.py runserver ```
 - Everything done! You can open Instagram app in your browser by ctrl + left click on http link in your console
+
+## Directory tree
+
+```
+
+├───core                        # Main direcory of the project with files such as 'settings.py', etc.
+├───src                         # Directory with divided apps
+│   ├───comment                 
+│   ├───post
+│   ├───social_actions
+│   └───user
+└───tests                       # Directory with unit tests. Divided per all apps and functionalities.
+    ├───comment
+    ├───post
+    ├───social_actions
+    └───user
+│   .dockerignore
+│   .gitignore
+│   Dockerfile
+│   README.md
+│   manage.py
+│   pytest.ini
+│   requirements.txt
+```
+
+[Go to top](#top) 
