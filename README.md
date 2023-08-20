@@ -20,15 +20,6 @@ The project also empowers users to craft their own posts, explore the profiles o
 
 The platform encourages engagement by enabling users to like posts. Furthermore, users can easily manage their accounts, tweak profile settings, and edit/delete existing posts.
 
-## Install for local use 
-- Copy the repository
-- Create virtual environment using ``` python -m venv venv ``` in project directory
-- Use ``` . venv/Scripts/activate ``` to activate the virtual environment
-- Install required packages by ``` pip install -r requirements.txt ```
-- Enter the ``` python manage.py migrate --run-syncdb ``` to update migrations
-- Now, you can run the application with this: ``` python manage.py runserver ```
-- Everything done! You can open Instagram app in your browser by ctrl + left click on http link in your console
-
 ## Directory tree
 
 ```
@@ -39,7 +30,7 @@ The platform encourages engagement by enabling users to like posts. Furthermore,
 │   ├───post
 │   ├───social_actions
 │   └───user
-└───tests                       # Directory with unit tests. Divided per all apps and functionalities.
+└───tests                       # Directory with unit tests. Divided per each apps and functionalities.
     ├───comment
     ├───post
     ├───social_actions
@@ -52,5 +43,15 @@ The platform encourages engagement by enabling users to like posts. Furthermore,
 │   pytest.ini
 │   requirements.txt
 ```
+
+## Install for local use 
+- Copy the repository
+- Create virtual environment using ``` python -m venv venv ``` in project directory
+- Use ``` . venv/Scripts/activate ``` to activate the virtual environment
+- Install required packages by ``` pip install -r requirements.txt ```
+- Enter the ``` python manage.py migrate --run-syncdb ``` to update migrations
+- Now, you can run the application with this: ``` python manage.py runserver ```
+- Everything done! You can open Instagram app in your browser by ctrl + left click on http link in your console
+
 
 [Go to top](#top) 
