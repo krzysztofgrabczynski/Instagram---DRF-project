@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.core.mail import send_mail
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,7 +15,7 @@ from src.user.serializers import (
 )
 from src.user.models import UserProfileModel
 from src.user.permissions import UserUpdatePermission
-from core.settings import EMAIL_HOST_USER
+from src.user.tasks import send_reset_password_email_task
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -49,6 +48,12 @@ class ResetPassowrdView(viewsets.GenericViewSet):
     The token will be deactivated after a successful password reset.
     """
 
+    def get_serializer_class(self, *args, **kwargs):
+        if self.action == "send_email":
+            return ResetPasswordEmailSerializer
+        if self.action == "reset_password":
+            return ResetPasswordSerializer
+
     @action(detail=True, methods=["POST"])
     def send_email(self, request, *args, **kwargs):
         serializer = ResetPasswordEmailSerializer(data=request.data)
@@ -56,7 +61,7 @@ class ResetPassowrdView(viewsets.GenericViewSet):
         email = serializer.data["email"]
 
         reset_password_url = self._create_reset_url(request, email)
-        self._send_email(reset_password_url, email)
+        send_reset_password_email_task.delay(reset_password_url, email)
 
         return Response("Email was sent successfully")
 
@@ -87,13 +92,6 @@ class ResetPassowrdView(viewsets.GenericViewSet):
         )
 
         return reset_password_url
-
-    def _send_email(self, reset_password_url: str, email: str) -> None:
-        subject = "Reset password"
-        message = f"Click here to reset your password: {reset_password_url}"
-        from_email = EMAIL_HOST_USER
-        recipient_list = [email]
-        send_mail(subject, message, from_email, recipient_list)
 
     def _perform_set_password(
         self, user: User, serializer: ResetPasswordSerializer
