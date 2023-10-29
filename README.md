@@ -21,7 +21,7 @@ The project also empowers users to craft their own posts, explore the profiles o
 
 The platform encourages engagement by enabling users to like posts. Furthermore, users can easily manage their accounts, tweak profile settings, and edit/delete existing posts.
 
- ## Tool used in project:
+ ## Tools used in project:
 
 <p align=center><a href="https://www.python.org"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="60" height="60"/></a> 
 <a href="https://www.djangoproject.com/"> <img src="https://cdn.worldvectorlogo.com/logos/django.svg" alt="django" width="60" height="60"/> </a>
