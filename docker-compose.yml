@@ -6,14 +6,14 @@ services:
       container_name: instagram_drf
       ports:
         - "8000:8000"
-      command: python manage.py runserver 0.0.0.0:8000
+      command: poetry run python manage.py runserver 0.0.0.0:8000
       depends_on:
         - db
         - redis
   celery:
       build: .
       container_name: celery
-      command: celery -A core worker -l info --pool=solo
+      command: poetry run celery -A core worker -l info --pool=solo
       depends_on:
         - instagram_drf
         - redis
