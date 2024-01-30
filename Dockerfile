@@ -5,9 +5,13 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /code
 
-COPY requirements.txt /code/
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+ENV PATH "/root/.local/bin:$PATH"
+
+COPY poetry.lock pyproject.toml /code/
+COPY README.md /code/
 
 COPY . /code/
+
+RUN poetry install
