@@ -59,18 +59,15 @@ The platform encourages engagement by enabling users to like posts. Furthermore,
 - Create .env file and add requirement variables such as 'SECRET_KEY' or database parameters
 - Build the Docker image using ``` docker-compose build ```
 - Run containers using ``` docker-compose up ```
-- Enter the ``` python manage.py migrate ``` to create migrations
 - Everything done! 
 
-## Install for local use 
-- Copy the repository
-- Create virtual environment using ``` python -m venv venv ``` in project directory
-- Use ``` . venv/Scripts/activate ``` to activate the virtual environment
-- Install required packages by ``` pip install -r requirements.txt ```
+## Install for local use (using poetry)
+- Clone the repository
 - Create .env file and add requirement variables such as 'SECRET_KEY' or database parameters
-- Enter the ``` python manage.py migrate --run-syncdb ``` to update migrations
-- Now, you can run the application with this: ``` python manage.py runserver ```
+- Enter the ``` poetry install ```
+- Now enter the ``` poetry shell ``` to open virtualenv and start app with ``` python manage.py runserver ```
 - Everything done! You can open Instagram app in your browser by ctrl + left click on http link in your console
 
+For local use without Docker, you also need to configure Postgres and Celery with Redis.
 
 [Go to top](#top) 
