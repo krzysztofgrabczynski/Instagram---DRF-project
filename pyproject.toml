@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "instagram-demo-drf"
+version = "0.1.0"
+description = ""
+authors = ["Krzysztof Grabczyński <grabczynski.krzysztof@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+celery = "^5.3.6"
+django = "^5.0.1"
+django-filter = "^23.5"
+djangorestframework = "^3.14.0"
+python-dotenv = "^1.0.1"
+redis = "^5.0.1"
+psycopg2-binary = "^2.9.9"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.1"
+flake8 = "^7.0.0"
+mypy = "^1.8.0"
+pytest = "^8.0.0"
+pytest-django = "^4.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
